@@ -1,11 +1,9 @@
 import { Provide, Inject } from '@midwayjs/decorator';
 import { InjectEntityModel } from '@midwayjs/orm';
 import { User } from '../entity/userModel';
-import { Repository } from 'typeorm';
+import { Like, Repository, Not } from 'typeorm';
 import { Message } from '../interface';
 import { UserUtil } from '../util/user';
-// const uuidv3 = require('uuid/v3');
-// const jwt = require('jsonwebtoken')
 @Provide('UserService')
 export class UserService {
     @Inject('UserUtil')
@@ -13,15 +11,16 @@ export class UserService {
     @InjectEntityModel(User)
     userModel: Repository<User>;
 
-    // save
+    // 注册
     async saveUser(data): Promise<Message> {
         let user = new User();
         let result = null;
         let query = await this.userModel.findOne({ username: data.username });
-        const fieldWare = ['staffName', 'username', 'password', 'sex'];
+        const fieldWare = ['staffName', 'username', 'password', 'sex','phone','address'];
         if (!query) {
             //注册账号不存在则新增
             user.enabled = 1;
+            user.staffId = Date.now().toString(); //生成id
             fieldWare.forEach(v => {
                 user[v] = data[v];
             })
@@ -41,16 +40,40 @@ export class UserService {
         }
     }
 
-    // query
-    async queryUser() {
-        let userResult = await this.userModel.find({
-            where: [{ enabled: 1 }],
+    // 查询用户
+    async queryUser(data): Promise<Message> {
+
+        let queryLength = await this.userModel.find({   //查询总条数
+            where: [{
+                staffName: Like(`%${data.staffName}%`),
+                staffId: data.staffId ? data.staffId : Not('null'),
+                enabled: 1,
+            }],
             order: {
-                id: "DESC"
-            }
+                id: "ASC"
+            },
         });
 
-        return userResult;
+        let result = await this.userModel.find({
+            select: ["id", 'username', 'staffName', 'staffId', 'createTime', 'sex', 'staffName','phone','address'],
+            where: {
+                staffName: Like(`%${data.staffName}%`),
+                staffId: data.staffId ? data.staffId : Not('null'),
+                enabled: 1,
+            },
+            order: {
+                id: "ASC"
+            },
+            skip: data.page == 1 ? 0 : (data.pageSize * data.page) - data.pageSize,
+            take: data.pageSize
+
+        });
+        return this.userUtil.success(['请求成功', {
+            list: result,
+            total: queryLength.length,
+            page: +data.page,
+            pageSize: +data.pageSize,
+        }])
     }
 
     //登陆接口
@@ -60,12 +83,11 @@ export class UserService {
         if (query) {
             await this.userUtil.generateToken({
                 Header: {
-                    username: query.username,
-                    password: query.password
+                    username: query.username
                 },
-                Signature: "admin",
+                Signature: this.userUtil.uuid(),
                 Payload: {
-                    expiresIn: 60 * 60// 生成的token的有效期
+                    expiresIn:  60 // 生成的token的有效期(秒)
                 }
             }).then(res => {
                 token = res;
@@ -74,6 +96,13 @@ export class UserService {
         } else {
             return this.userUtil.error(['您输入的用户名或密码不正确，请重试', null])
         }
+    }
+
+    async delUser(data) {  //删除用户  逻辑删除 enabled  0
+        let query = await this.userModel.findOne({ id: data.id });
+        query.enabled = 0;
+        await this.userModel.save(query);
+        return this.userUtil.success(['删除成功', null])
     }
 
 }

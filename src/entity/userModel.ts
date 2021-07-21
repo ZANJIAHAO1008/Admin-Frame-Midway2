@@ -27,6 +27,16 @@ export class User {
     })
     sex: number;
 
+    @Column({
+        nullable: true  //电话号码
+    })
+    phone: string;
+
+    @Column({
+        nullable: true  //地址
+    })
+    address: string;
+
     @CreateDateColumn()  //生成时间
     createTime: Date;
 
