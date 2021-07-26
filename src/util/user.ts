@@ -18,7 +18,7 @@ export class UserUtil {
     verifyToken(tokenJson) {
         return jwt.verify(tokenJson, this.uuid())
     }
-    uuid(){
+    uuid() {
         return uuidv3(screenKey, uuidv3.DNS);
     }
 }

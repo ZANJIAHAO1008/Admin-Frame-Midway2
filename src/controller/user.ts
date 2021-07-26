@@ -14,6 +14,11 @@ export class HomeController {
         const result = await this.userService.queryUser(data);
         return result;
     }
+    @Get('/user/getUserInfo') //查询个人信息
+    async getUserInfo(@Query(ALL) data:Object): Promise<Message> {
+        const result = await this.userService.getUserInfo(data);
+        return result;
+    }
 
     @Post('/user/login') //post登陆
     async getFind(@Body(ALL) data: UserInter): Promise<Message> {
@@ -27,11 +32,19 @@ export class HomeController {
         return result;
     }
 
-    @Post('/user/delUser') //注册账号
+    @Post('/user/delUser')  //删除用户  逻辑删除 enabled  0
     async deleteUser(@Body(ALL) data: UserInter) {
         const result = await this.userService.delUser(data);
         return result;
     }
+
+
+    @Post('/user/changePass')  //修改密码 
+    async changePass(@Body(ALL) data: Object):Promise<Message>{
+        const result = await this.userService.changePass(data);
+        return result;
+    }
+
 
 
 
