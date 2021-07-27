@@ -5,7 +5,7 @@ import { UserInter, Message,UserQuery } from '../interface';
 
 @Provide()
 @Controller('/')
-export class HomeController {
+export class UserController {
     @Inject('UserService')
     userService: UserService;
 
