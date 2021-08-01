@@ -45,6 +45,12 @@ export class UserController {
         return result;
     }
 
+    @Post('/user/modifyBaseInfo')  //修改基本信息
+    async modifyBaseInfo(@Body(ALL) data: Object):Promise<Message>{
+        const result = await this.userService.modifyBaseInfo(data);
+        return result;
+    }
+
 
 
 

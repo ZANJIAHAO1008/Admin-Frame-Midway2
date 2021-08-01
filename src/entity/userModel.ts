@@ -25,12 +25,22 @@ export class User {
     @Column({
         nullable: true  //true为字段非必填
     })
-    sex: number;
+    sex: string;
 
     @Column({
         nullable: true  //电话号码
     })
     phone: string;
+
+    @Column({
+        nullable: true  //出生日期
+    })
+    birthDate: string;
+
+    @Column({
+        nullable: true  //头像
+    })
+    image: string;
 
     @Column({
         nullable: true  //地址
@@ -42,6 +52,14 @@ export class User {
 
     @UpdateDateColumn() //更新时间
     updateTime: Date;
+
+    @Column({
+        nullable: true  //个人说明
+    })
+    marks: string;
+
+    @Column("char", { length: 1 }) //用户账号状态 0正常 1冻结
+    userState: string
 
     @Column("char", { length: 1 }) //展示隐藏 0隐藏 1显示
     enabled: number

@@ -20,6 +20,7 @@ export class UserService {
         if (!query) {
             //注册账号不存在则新增
             user.enabled = 1;
+            user.userState = '0';
             user.staffId = Date.now().toString(); //生成id
             fieldWare.forEach(v => {
                 user[v] = data[v];
@@ -29,6 +30,7 @@ export class UserService {
         } else if (query.enabled == 0) {
             //如果存在但是enabled为0 则改为1
             query.enabled = 1;
+            query.userState = '0';
             fieldWare.forEach(v => {
                 query[v] = data[v];
             })
@@ -55,7 +57,7 @@ export class UserService {
         });
 
         let result = await this.userModel.find({
-            select: ["id", 'username', 'staffName', 'staffId', 'createTime', 'sex', 'staffName', 'phone', 'address'],
+            select: ["id", 'username', 'staffName', 'staffId', 'createTime', 'sex', 'staffName', 'phone', 'address', 'birthDate', 'image', 'userState', 'marks'],
             where: {
                 staffName: Like(`%${data.staffName}%`),
                 staffId: data.staffId ? data.staffId : Not('null'),
@@ -79,7 +81,7 @@ export class UserService {
     //查询个人信息
     async getUserInfo(data): Promise<Message> {
         let result = await this.userModel.findOne({
-            select: ["id", 'username', 'staffName', 'staffId', 'createTime', 'sex', 'staffName', 'phone', 'address'],
+            select: ["id", 'username', 'staffName', 'staffId', 'createTime', 'sex', 'staffName', 'phone', 'address', 'birthDate', 'image', 'userState', 'marks'],
             where: {
                 username: data.username,
                 enabled: 1
@@ -89,28 +91,32 @@ export class UserService {
     }
 
     //登陆接口
-    async login(data) {
+    async login(data): Promise<Message> {
         let token: any;
         let query = await this.userModel.findOne({ username: data.username, password: data.password, enabled: 1 });
-        if (query) {
-            await this.userUtil.generateToken({
-                Header: {
-                    username: query.username
-                },
-                Signature: this.userUtil.uuid(),
-                Payload: {
-                    expiresIn: 60 * 60 // 生成的token的有效期(秒)
-                }
-            }).then(res => {
-                token = res;
-            })
-            return this.userUtil.success(['登陆成功', token])
+        if (query) { //如果查询到有用户
+            if (query.userState == '0') { //如果用户状态是正常
+                await this.userUtil.generateToken({
+                    Header: {
+                        username: query.username
+                    },
+                    Signature: this.userUtil.uuid(),
+                    Payload: {
+                        expiresIn: 60 * 60 // 生成的token的有效期(秒)
+                    }
+                }).then(res => {
+                    token = res;
+                })
+                return this.userUtil.success(['登陆成功', token])
+            } else { //如果是冻结
+                return this.userUtil.error(['您的账号已冻结,请联系管理员', null])
+            }
         } else {
             return this.userUtil.error(['您输入的用户名或密码不正确，请重试', null])
         }
     }
 
-    async delUser(data) {  //删除用户  逻辑删除 enabled  0
+    async delUser(data):Promise<Message> {  //删除用户  逻辑删除 enabled  0
         let query = await this.userModel.findOne({ id: data.id });
         query.enabled = 0;
         await this.userModel.save(query);
@@ -130,6 +136,18 @@ export class UserService {
             return this.userUtil.error(['密码输入错误,请重新再试', null])
         }
 
+    }
+
+    async modifyBaseInfo(data):Promise<Message> {//修改基本信息
+        const fieldWare = [ 'username', 'staffName', 'staffId', 'createTime', 'sex', 'staffName', 'phone', 'address', 'birthDate', 'image', 'userState', 'marks'];
+        let result = await this.userModel.findOne({ staffId: data.staffId });
+        if(result){
+            fieldWare.forEach(v => {
+                result[v] = data[v];
+            })
+        }
+        await this.userModel.save(result);
+        return this.userUtil.success(['修改成功', null])
     }
 
 }

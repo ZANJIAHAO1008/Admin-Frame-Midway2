@@ -1,7 +1,7 @@
 
-import { Controller, Inject, Provide, Get } from '@midwayjs/decorator';
+import { Controller, Inject, Provide, Get, Body, ALL, Post, Del, Query, Put } from '@midwayjs/decorator';
 import { RoleService } from '../service/roleService';
-// import {  } from '../interface/resource';
+import { addRole, delRole, saveRole,queryRole,relationInter } from '../Interface/role'
 import { Message } from '../interface'
 
 
@@ -11,29 +11,39 @@ export class RoleController {
     @Inject('RoleService')
     roleService: RoleService;
 
-    @Get('/role/getAll')//查询资源
-    async getAll(): Promise<Message> {
-        const result = await this.roleService.getAll();
+    @Get('/role/getRole')//查询角色
+    async getRole(@Query(ALL)data:Object): Promise<Message> {
+        const result = await this.roleService.getRole(data);
         return result;
     }
 
-    // @Post('/resource/save') //新增资源
-    // async saveResource(@Body(ALL) data: ResourceInter): Promise<Message> {
-    //     const result = await this.resourceService.saveResource(data);
-    //     return result;
-    // }
+    @Post('/role/save') //新增角色
+    async saveRole(@Body(ALL) data: addRole): Promise<Message> {
+        const result = await this.roleService.saveRole(data);
+        return result;
+    }
 
-    // @Put('/resource/edit') //修改资源
-    // async editResource(@Body(ALL) data: ResourceInter): Promise<Message> {
-    //     const result = await this.resourceService.editResource(data);
-    //     return result;
-    // }
+    @Put('/role/edit') //修改角色
+    async editResource(@Body(ALL) data: saveRole): Promise<Message> {
+        const result = await this.roleService.editRole(data);
+        return result;
+    }
 
-    // @Del('/resource/delete') //删除资源
-    // async delResource(@Query(ALL) data:Object): Promise<Message> {
-    //     const result = await this.resourceService.delResource(data);
-    //     return result;
-    // }
+    @Del('/role/delete') //删除角色
+    async delResource(@Query(ALL) data: delRole): Promise<Message> {
+        const result = await this.roleService.delRole(data);
+        return result;
+    }
+    @Post('/role/relationUser') //新增关联角色
+    async relationUser(@Body(ALL) data: relationInter): Promise<Message> {
+        const result = await this.roleService.relationUser(data);
+        return result;
+    }
+    @Get('/role/getUserRole')//查询关联角色
+    async getUserRole(@Query(ALL) data:queryRole): Promise<Message> {
+        const result = await this.roleService.getUserRole(data);
+        return result;
+    }
 
 
 

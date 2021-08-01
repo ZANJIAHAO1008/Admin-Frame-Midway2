@@ -1,7 +1,7 @@
 
 import { Controller, Inject, Post, Provide, Body, ALL, Get, Put, Query,Del } from '@midwayjs/decorator';
 import { ResourceService } from '../service/resourceService';
-import { ResourceInter } from '../interface/resource';
+import { ResourceInter,RoleRelation,RoleRelationId } from '../interface/resource';
 import { Message } from '../interface'
 
 
@@ -11,9 +11,9 @@ export class ResourceController {
     @Inject('ResourceService')
     resourceService: ResourceService;
 
-    @Get('/resource/getAll')//查询资源
-    async getAll(): Promise<Message> {
-        const result = await this.resourceService.getAll();
+    @Get('/resource/getResource')//查询资源
+    async getResource(@Query(ALL) data:Object): Promise<Message> {
+        const result = await this.resourceService.getResource(data);
         return result;
     }
 
@@ -35,6 +35,17 @@ export class ResourceController {
         return result;
     }
 
+    @Post('/resource/relation') //角色关联资源
+    async roleRelation(@Body(ALL) data: RoleRelation): Promise<Message> {
+        const result = await this.resourceService.roleRelation(data);
+        return result;
+    }
+
+    @Get('/resource/getRoleRelation')//查询资源
+    async getRoleRelation(@Query(ALL) data:RoleRelationId): Promise<Message> {
+        const result = await this.resourceService.getRoleRelation(data);
+        return result;
+    }
 
 
 }

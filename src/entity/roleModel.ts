@@ -9,8 +9,8 @@ export class Role {
     @Column()   //角色名称
     roleName: string;
 
-    @Column()   //是否为默认角色
-    授予: Boolean;
+    @Column()   //是否为默认角色  0否 1默认
+    grant: string;
 
     @Column({
         nullable: true,  //true为字段非必填
