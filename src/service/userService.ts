@@ -4,13 +4,18 @@ import { User } from '../entity/userModel';
 import { Like, Repository, Not } from 'typeorm';
 import { Message } from '../interface';
 import { UserUtil } from '../util/user';
+import { RoleService } from '../service/roleService';
+import { ResourceService } from '../service/resourceService'
 @Provide('UserService')
 export class UserService {
     @Inject('UserUtil')
     userUtil: UserUtil;
     @InjectEntityModel(User)
     userModel: Repository<User>;
-
+    @Inject('RoleService') //注册角色服务用来查询角色
+    roleService: RoleService;//用来查询角色
+    @Inject('ResourceService') //注册角色服务用来查询角色
+    resourceService: ResourceService;//用来查询角色
     // 注册
     async saveUser(data): Promise<Message> {
         let user = new User();
@@ -80,14 +85,23 @@ export class UserService {
 
     //查询个人信息
     async getUserInfo(data): Promise<Message> {
-        let result = await this.userModel.findOne({
+        let user = await this.userModel.findOne({ //查询出该用户个人信息
             select: ["id", 'username', 'staffName', 'staffId', 'createTime', 'sex', 'staffName', 'phone', 'address', 'birthDate', 'image', 'userState', 'marks'],
             where: {
                 username: data.username,
                 enabled: 1
             },
-        });
-        return this.userUtil.success(['请求成功', result])
+        })
+
+        let roleList = await this.roleService.getRoleList({ staffId: user.staffId }); //用来获用户关联的角色的集合
+
+        let resourceIds = await this.resourceService.getUserRoleResourceIds(roleList); //用来获用户关联的角色的所有资源的ID集合
+
+        let resourceList = await this.resourceService.getUserRoleResource(resourceIds); //获取所有的资源
+
+        user.resourceList = resourceList;
+
+        return this.userUtil.success(['请求成功', user])
     }
 
     //登陆接口
@@ -116,7 +130,7 @@ export class UserService {
         }
     }
 
-    async delUser(data):Promise<Message> {  //删除用户  逻辑删除 enabled  0
+    async delUser(data): Promise<Message> {  //删除用户  逻辑删除 enabled  0
         let query = await this.userModel.findOne({ id: data.id });
         query.enabled = 0;
         await this.userModel.save(query);
@@ -138,10 +152,10 @@ export class UserService {
 
     }
 
-    async modifyBaseInfo(data):Promise<Message> {//修改基本信息
-        const fieldWare = [ 'username', 'staffName', 'staffId', 'createTime', 'sex', 'staffName', 'phone', 'address', 'birthDate', 'image', 'userState', 'marks'];
+    async modifyBaseInfo(data): Promise<Message> {//修改基本信息
+        const fieldWare = ['username', 'staffName', 'staffId', 'createTime', 'sex', 'staffName', 'phone', 'address', 'birthDate', 'image', 'userState', 'marks'];
         let result = await this.userModel.findOne({ staffId: data.staffId });
-        if(result){
+        if (result) {
             fieldWare.forEach(v => {
                 result[v] = data[v];
             })

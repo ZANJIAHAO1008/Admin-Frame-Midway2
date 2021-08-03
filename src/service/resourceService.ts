@@ -1,4 +1,4 @@
-import { Repository, Like, Not } from 'typeorm';
+import { Repository, Like, Not, getConnection } from 'typeorm';
 import { Provide } from '@midwayjs/decorator';
 import { InjectEntityModel } from '@midwayjs/orm';
 import { Message } from '../interface';
@@ -15,9 +15,12 @@ export class ResourceService {
         let result = await this.resourceModel.find({
             where: {
                 resourceName: data.resourceName ? Like(`%${data.resourceName}%`) : Not('null'),
+            },
+            order: {
+                resourceOrder: 'ASC'
             }
         });
-        result = result.map(v => {
+        result = result.map(v => { //过滤children
             v.children = [];
             result.forEach((child) => {
                 if (v.resourceId == child.parentId) {
@@ -112,5 +115,57 @@ export class ResourceService {
             }
         })
         return success(['查询成功', result])
+    }
+
+    async getUserRoleResourceIds(data): Promise<any> {//查询用户角色关联的资源ID集合
+        let roleIds = []; //拿出角色的ID集合
+        if (data.length) {
+            roleIds = data.map(v => v.roleId);
+        }
+        let resourceList = await getConnection()
+            .createQueryBuilder()
+            .select('resourceRole')
+            .from(ResourceRole, "resourceRole")
+            .where("resourceRole.roleId IN (:...roleId)", { roleId: [...roleIds] })
+            .getMany();
+
+        let resourceIds = []; //拿出资源ID的集合 并且去重转为Array
+        resourceIds = Array.from(new Set(resourceList.map(v => v.resourceId)));
+
+
+
+        return resourceIds; //返回去重的
+    }
+
+    async getUserRoleResource(data): Promise<any> {//查询用户角色关联的资源ID
+        let result = await getConnection()
+            .createQueryBuilder()
+            .select('resource')
+            .from(Resource, "resource")
+            .where("resource.resourceId IN (:...resourceId)", { resourceId: [...data] }).orderBy({
+                "resource.resourceOrder": "ASC",
+            })
+            .getMany();
+
+        let delIds = [];
+        result = result.map((v) => {  //过滤children
+            v.children = [];
+            result.forEach((child, index) => {
+                if (v.resourceId == child.parentId) {
+                    v.children.push(child)
+                    delIds.push(child.resourceId)
+                }
+            })
+            return Object.assign({ ...v }, {})
+        })
+        delIds.forEach(v => {
+            result.forEach((r, i) => {
+                if (v == r.resourceId) {
+                    result.splice(i, 1)
+                }
+            })
+        })
+
+        return result;
     }
 }

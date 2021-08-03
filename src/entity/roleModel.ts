@@ -4,7 +4,7 @@ import { Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } fr
 export class Role {
 
     @PrimaryGeneratedColumn()  //角色ID 
-    roleId: number;
+    roleId: string;
 
     @Column()   //角色名称
     roleName: string;

@@ -63,4 +63,8 @@ export class User {
 
     @Column("char", { length: 1 }) //展示隐藏 0隐藏 1显示
     enabled: number
+
+    resourceList:any[];
+
+    roleId:string;
 }
