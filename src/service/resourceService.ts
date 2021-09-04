@@ -119,52 +119,54 @@ export class ResourceService {
 
     async getUserRoleResourceIds(data): Promise<any> {//查询用户角色关联的资源ID集合
         let roleIds = []; //拿出角色的ID集合
+        //拿出资源ID的集合 并且去重转为Array
+        let resourceIds = [];
         if (data.length) {
             roleIds = data.map(v => v.roleId);
+            let resourceList = await getConnection()
+                .createQueryBuilder()
+                .select('resourceRole')
+                .from(ResourceRole, "resourceRole")
+                .where("resourceRole.roleId IN (:...roleId)", { roleId: [...roleIds] })
+                .getMany();
+            resourceIds = Array.from(new Set(resourceList.map(v => v.resourceId)));
         }
-        let resourceList = await getConnection()
-            .createQueryBuilder()
-            .select('resourceRole')
-            .from(ResourceRole, "resourceRole")
-            .where("resourceRole.roleId IN (:...roleId)", { roleId: [...roleIds] })
-            .getMany();
-
-        let resourceIds = []; //拿出资源ID的集合 并且去重转为Array
-        resourceIds = Array.from(new Set(resourceList.map(v => v.resourceId)));
-
 
 
         return resourceIds; //返回去重的
     }
 
     async getUserRoleResource(data): Promise<any> {//查询用户角色关联的资源ID
-        let result = await getConnection()
-            .createQueryBuilder()
-            .select('resource')
-            .from(Resource, "resource")
-            .where("resource.resourceId IN (:...resourceId)", { resourceId: [...data] }).orderBy({
-                "resource.resourceOrder": "ASC",
-            })
-            .getMany();
+        let result = [];
+        if (data?.length) {
+            result = await getConnection()
+                .createQueryBuilder()
+                .select('resource')
+                .from(Resource, "resource")
+                .where("resource.resourceId IN (:...resourceId)", { resourceId: [...data] }).orderBy({
+                    "resource.resourceOrder": "ASC",
+                })
+                .getMany();
 
-        let delIds = [];
-        result = result.map((v) => {  //过滤children
-            v.children = [];
-            result.forEach((child, index) => {
-                if (v.resourceId == child.parentId) {
-                    v.children.push(child)
-                    delIds.push(child.resourceId)
-                }
+            let delIds = [];
+            result = result.map((v) => {  //过滤children
+                v.children = [];
+                result.forEach((child, index) => {
+                    if (v.resourceId == child.parentId) {
+                        v.children.push(child)
+                        delIds.push(child.resourceId)
+                    }
+                })
+                return Object.assign({ ...v }, {})
             })
-            return Object.assign({ ...v }, {})
-        })
-        delIds.forEach(v => {
-            result.forEach((r, i) => {
-                if (v == r.resourceId) {
-                    result.splice(i, 1)
-                }
+            delIds.forEach(v => {
+                result.forEach((r, i) => {
+                    if (v == r.resourceId) {
+                        result.splice(i, 1)
+                    }
+                })
             })
-        })
+        }
 
         return result;
     }

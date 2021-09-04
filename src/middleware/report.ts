@@ -9,7 +9,15 @@ export class ReportMiddleware implements IWebMiddleware {
   userUtil: UserUtil;
   resolve() {
     return async (ctx: Context, next: IMidwayWebNext) => {
+
+      if(ctx.url.split('/').includes('api')){
+        //去除生产环境 接口自带api的问题(暂定,后期修改)
+        let filterUrl = ctx.url.slice(4,ctx.url.length);
+        ctx.url = filterUrl;
+      }
+
       const url = ctx.url;
+      console.log(ctx.url.split('/'));
       const path = url.split('?')[0];//截取接口
       const token = ctx.get('Authorization'); //获取请求头中的token
       const whiteList = ['/user/login','/user/addUser']; //白名单
@@ -40,6 +48,7 @@ export class ReportMiddleware implements IWebMiddleware {
         }
       } else {
         this.nullToken(ctx);
+        
       }
 
 

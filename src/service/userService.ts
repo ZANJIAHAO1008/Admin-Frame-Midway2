@@ -99,7 +99,7 @@ export class UserService {
 
         let resourceList = await this.resourceService.getUserRoleResource(resourceIds); //获取所有的资源
 
-        user.resourceList = resourceList;
+        user.resourceList = resourceList ?? [];
 
         return this.userUtil.success(['请求成功', user])
     }
