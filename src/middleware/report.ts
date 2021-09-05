@@ -17,7 +17,6 @@ export class ReportMiddleware implements IWebMiddleware {
       }
 
       const url = ctx.url;
-      console.log(ctx.url.split('/'));
       const path = url.split('?')[0];//截取接口
       const token = ctx.get('Authorization'); //获取请求头中的token
       const whiteList = ['/user/login','/user/addUser']; //白名单
