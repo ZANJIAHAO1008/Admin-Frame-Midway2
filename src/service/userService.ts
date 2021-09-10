@@ -1,11 +1,15 @@
 import { Provide, Inject } from '@midwayjs/decorator';
 import { InjectEntityModel } from '@midwayjs/orm';
 import { User } from '../entity/userModel';
+import { UserRole } from '../entity/user_role';
+import { Role } from '../entity/roleModel';
 import { Like, Repository, Not } from 'typeorm';
 import { Message } from '../interface';
 import { UserUtil } from '../util/user';
+import { success, error } from '../util/public';
 import { RoleService } from '../service/roleService';
 import { ResourceService } from '../service/resourceService'
+import { postMethod, getMethod } from '../util/methods';
 @Provide('UserService')
 export class UserService {
     @Inject('UserUtil')
@@ -16,6 +20,7 @@ export class UserService {
     roleService: RoleService;//用来查询角色
     @Inject('ResourceService') //注册角色服务用来查询角色
     resourceService: ResourceService;//用来查询角色
+
     // 注册
     async saveUser(data): Promise<Message> {
         let user = new User();
@@ -30,8 +35,31 @@ export class UserService {
             fieldWare.forEach(v => {
                 user[v] = data[v];
             })
-            await this.userModel.save(user);
-            return this.userUtil.success(['注册成功', null])
+
+            let newUser = await this.userModel.save(user); //注册账号信息
+
+            let roles: any[] = await getMethod({ //查询默认的角色
+                select: "role",
+                model: [Role, "role"],
+                where: {
+                    grant: 1,
+                }
+            });
+
+            roles = roles.map(v => {  //过滤默认ID
+                return {
+                    staffId: newUser.staffId,
+                    roleId: v.roleId
+                }
+            })
+
+            await postMethod({ //插入默认角色
+                into: UserRole,
+                values: roles
+            })
+
+            return success(['注册成功', null])
+
         } else if (query.enabled == 0) {
             //如果存在但是enabled为0 则改为1
             query.enabled = 1;
@@ -40,10 +68,10 @@ export class UserService {
                 query[v] = data[v];
             })
             await this.userModel.save(query);
-            return this.userUtil.success(['注册成功', null])
+            return success(['注册成功', null])
         } else {
             //如果查询到了存在该账号则无法新增
-            return this.userUtil.error(['该用户名已存在', null])
+            return error(['该用户名已存在', null])
         }
     }
 
@@ -52,7 +80,7 @@ export class UserService {
 
         let queryLength = await this.userModel.find({   //查询总条数
             where: [{
-                staffName: Like(`%${data.staffName}%`),
+                staffName: Like(`%${data?.staffName ?? ""}%`),
                 staffId: data.staffId ? data.staffId : Not('null'),
                 enabled: 1,
             }],
@@ -64,7 +92,7 @@ export class UserService {
         let result = await this.userModel.find({
             select: ["id", 'username', 'staffName', 'staffId', 'createTime', 'sex', 'staffName', 'phone', 'address', 'birthDate', 'image', 'userState', 'marks'],
             where: {
-                staffName: Like(`%${data.staffName}%`),
+                staffName: Like(`%${data?.staffName ?? ""}%`),
                 staffId: data.staffId ? data.staffId : Not('null'),
                 enabled: 1,
             },
@@ -75,11 +103,12 @@ export class UserService {
             take: data.pageSize
 
         });
-        return this.userUtil.success(['请求成功', {
+
+        return success(['请求成功', {
             list: result,
             total: queryLength.length,
-            page: +data.page,
-            pageSize: +data.pageSize,
+            page: data?.page ? +data?.page : 1,
+            pageSize: data?.pageSize ? +data?.pageSize : 10,
         }])
     }
 
@@ -101,7 +130,7 @@ export class UserService {
 
         user.resourceList = resourceList ?? [];
 
-        return this.userUtil.success(['请求成功', user])
+        return success(['请求成功', user])
     }
 
     //登陆接口
@@ -121,12 +150,12 @@ export class UserService {
                 }).then(res => {
                     token = res;
                 })
-                return this.userUtil.success(['登陆成功', token])
+                return success(['登陆成功', token])
             } else { //如果是冻结
-                return this.userUtil.error(['您的账号已冻结,请联系管理员', null])
+                return error(['您的账号已冻结,请联系管理员', null])
             }
         } else {
-            return this.userUtil.error(['您输入的用户名或密码不正确，请重试', null])
+            return error(['您输入的用户名或密码不正确，请重试', null])
         }
     }
 
@@ -134,20 +163,20 @@ export class UserService {
         let query = await this.userModel.findOne({ id: data.id });
         query.enabled = 0;
         await this.userModel.save(query);
-        return this.userUtil.success(['删除成功', null])
+        return success(['删除成功', null])
     }
 
     async changePass(data) { //修改密码
         let result = await this.userModel.findOne({ staffId: data.staffId, password: data.oldPassword });
         if (result) {
             if (data.oldPassword === data.newPassword) {
-                return this.userUtil.error(['新旧密码重复,请重新再试', null])
+                return error(['新旧密码重复,请重新再试', null])
             };
             result.password = data.newPassword;
             await this.userModel.save(result);
-            return this.userUtil.success(['密码修改成功,请重新登陆', null])
+            return success(['密码修改成功,请重新登陆', null])
         } else {
-            return this.userUtil.error(['密码输入错误,请重新再试', null])
+            return error(['密码输入错误,请重新再试', null])
         }
 
     }
@@ -161,7 +190,7 @@ export class UserService {
             })
         }
         await this.userModel.save(result);
-        return this.userUtil.success(['修改成功', null])
+        return success(['修改成功', null])
     }
 
 }

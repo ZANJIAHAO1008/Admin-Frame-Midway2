@@ -92,7 +92,7 @@ export class ResourceService {
                     resourceId: v.resourceId
                 }
             })
-            delMethod({  //删除现有role资源
+            await delMethod({  //删除现有role资源
                 from: ResourceRole,
                 where: { roleId: data.roleId }
             })

@@ -41,4 +41,5 @@ export class Resource {
     available: number
     
     children: any[];
+
 }

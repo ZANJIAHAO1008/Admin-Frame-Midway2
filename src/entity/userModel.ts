@@ -65,6 +65,4 @@ export class User {
     enabled: number
 
     resourceList:any[];
-
-    roleId:string;
 }

@@ -35,7 +35,7 @@ export interface GetField {  //GET请求
 
 export interface PostField {  //POST请求
   into: any;
-  values: Array<Object>;
+  values: Array<Object> | any;
 }
 
 export interface PutField {  //Put请求

@@ -17,4 +17,6 @@ export class ResourceRole {
 
     @UpdateDateColumn() //更新时间
     updateTime: Date;
+
+    
 }

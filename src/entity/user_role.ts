@@ -16,4 +16,5 @@ export class UserRole {
 
     @UpdateDateColumn() //更新时间
     updateTime: Date;
+    
 }
