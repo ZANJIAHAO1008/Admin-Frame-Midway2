@@ -1,7 +1,7 @@
 import { Repository, Like, Not, getConnection } from 'typeorm';
 import { Provide } from '@midwayjs/decorator';
 import { InjectEntityModel } from '@midwayjs/orm';
-import { Message } from '../interface';
+import { Message } from '../interface/interface';
 import { Resource } from '../entity/resourceModel';
 import { ResourceRole } from '../entity/resource_role';
 import { error, success } from '../util/public';

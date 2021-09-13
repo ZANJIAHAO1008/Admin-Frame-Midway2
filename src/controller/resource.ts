@@ -1,8 +1,8 @@
 
 import { Controller, Inject, Post, Provide, Body, ALL, Get, Put, Query,Del } from '@midwayjs/decorator';
 import { ResourceService } from '../service/resourceService';
-import { ResourceInter,RoleRelation,RoleRelationId } from '../commonInterface/resource';
-import { Message } from '../interface'
+import { ResourceInter,RoleRelation,RoleRelationId } from '../interface/resource';
+import { Message } from '../interface/interface'
 
 
 @Provide()

@@ -28,9 +28,13 @@ export interface Authorization {  //token
 }
 
 export interface GetField {  //GET请求
-  select: string;
+  select: string | any;
   model: Array<any>;
   where: Object;
+  orWhere?: Object | any;
+  order?: Array<any>;
+  skip?: number;
+  limit?: number;
 }
 
 export interface PostField {  //POST请求
@@ -41,7 +45,7 @@ export interface PostField {  //POST请求
 export interface PutField {  //Put请求
   update: any;
   set: any;
-  where:object;
+  where: Array<any>;
 }
 
 export interface DelField {  //DELETE请求

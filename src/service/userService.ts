@@ -4,7 +4,7 @@ import { User } from '../entity/userModel';
 import { UserRole } from '../entity/user_role';
 import { Role } from '../entity/roleModel';
 import { Like, Repository, Not } from 'typeorm';
-import { Message } from '../interface';
+import { Message } from '../interface/interface';
 import { UserUtil } from '../util/user';
 import { success, error } from '../util/public';
 import { RoleService } from '../service/roleService';
@@ -99,9 +99,8 @@ export class UserService {
             order: {
                 id: "ASC"
             },
-            skip: data.page == 1 ? 0 : (data.pageSize * data.page) - data.pageSize,
-            take: data.pageSize
-
+            skip: data?.page ? (data.page == 1 ? 0 : (data.pageSize * data.page) - data.pageSize) : 0,
+            take: data?.pageSize ?? 10
         });
 
         return success(['请求成功', {

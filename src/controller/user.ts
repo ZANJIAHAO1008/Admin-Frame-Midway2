@@ -1,6 +1,6 @@
 import { Controller, Get, Inject, Post, Provide, Body, ALL,Query } from '@midwayjs/decorator';
 import { UserService } from '../service/userService'
-import { UserInter, Message,UserQuery } from '../interface';
+import { UserInter, Message,UserQuery } from '../interface/interface';
 
 
 @Provide()

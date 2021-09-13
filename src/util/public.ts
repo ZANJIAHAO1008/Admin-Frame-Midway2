@@ -1,5 +1,5 @@
 //公共方法
-import { Authorization,Message } from '../interface';
+import { Authorization,Message } from '../interface/interface';
 const moment = require('moment');
 const jwt = require('jsonwebtoken')
 

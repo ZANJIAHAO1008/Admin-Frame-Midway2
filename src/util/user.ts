@@ -1,4 +1,4 @@
-import { Message, Authorization } from '../interface';
+import { Message, Authorization } from '../interface/interface';
 import { Provide } from '@midwayjs/decorator';
 import { format } from './public';
 const jwt = require('jsonwebtoken');
