@@ -4,8 +4,11 @@ import { ResourceRole } from "../entity/resource_role";
 import { Resource } from "../entity/resourceModel";
 import { Role } from "../entity/roleModel";
 import { UserRole } from "../entity/user_role";
+import { defaults } from 'joi/lib/common.js'
 
 
+
+defaults.allowUnknown = true; //由于部分用户在参数校验的时候，希望允许出现没有定义的字段
 export type DefaultConfig = PowerPartial<EggAppConfig>;
 
 export default (appInfo: EggAppInfo) => {

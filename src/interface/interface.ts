@@ -52,3 +52,13 @@ export interface DelField {  //DELETE请求
   from: any;
   where: Object;
 }
+
+export interface CheckDTO {  //DTO错误返回
+  isWrite?: Boolean; //是否必填
+  isLength?: Boolean; // 是否校验长度
+  value?: string; //参数
+  prop?: string;  //字段名
+  min?: number; //最短
+  max?: number; //最长
+}
+

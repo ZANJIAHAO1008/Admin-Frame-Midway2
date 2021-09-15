@@ -5,15 +5,13 @@ import { UserRole } from '../entity/user_role';
 import { Role } from '../entity/roleModel';
 import { Like, Repository, Not } from 'typeorm';
 import { Message } from '../interface/interface';
-import { UserUtil } from '../util/user';
 import { success, error } from '../util/public';
 import { RoleService } from '../service/roleService';
 import { ResourceService } from '../service/resourceService'
 import { postMethod, getMethod } from '../util/methods';
+import { generateToken, uuid } from '../util/public'
 @Provide('UserService')
 export class UserService {
-    @Inject('UserUtil')
-    userUtil: UserUtil;
     @InjectEntityModel(User)
     userModel: Repository<User>;
     @Inject('RoleService') //注册角色服务用来查询角色
@@ -138,17 +136,15 @@ export class UserService {
         let query = await this.userModel.findOne({ username: data.username, password: data.password, enabled: 1 });
         if (query) { //如果查询到有用户
             if (query.userState == '0') { //如果用户状态是正常
-                await this.userUtil.generateToken({
+                token = generateToken({
                     Header: {
                         username: query.username
                     },
-                    Signature: this.userUtil.uuid(),
+                    Signature: uuid(),
                     Payload: {
-                        expiresIn: 60 * 60 // 生成的token的有效期(秒)
+                        expiresIn: 60 * 120 // 生成的token的有效期(秒)
                     }
-                }).then(res => {
-                    token = res;
-                })
+                });
                 return success(['登陆成功', token])
             } else { //如果是冻结
                 return error(['您的账号已冻结,请联系管理员', null])
@@ -160,12 +156,16 @@ export class UserService {
 
     async delUser(data): Promise<Message> {  //删除用户  逻辑删除 enabled  0
         let query = await this.userModel.findOne({ id: data.id });
-        query.enabled = 0;
-        await this.userModel.save(query);
-        return success(['删除成功', null])
+        if (query) {
+            query.enabled = 0;
+            await this.userModel.save(query);
+            return success(['删除成功', null])
+        } else {
+            return error(['用户不存在', null])
+        }
     }
 
-    async changePass(data) { //修改密码
+    async changePass(data): Promise<Message> { //修改密码
         let result = await this.userModel.findOne({ staffId: data.staffId, password: data.oldPassword });
         if (result) {
             if (data.oldPassword === data.newPassword) {
@@ -177,15 +177,16 @@ export class UserService {
         } else {
             return error(['密码输入错误,请重新再试', null])
         }
-
     }
 
     async modifyBaseInfo(data): Promise<Message> {//修改基本信息
-        const fieldWare = ['username', 'staffName', 'staffId', 'createTime', 'sex', 'staffName', 'phone', 'address', 'birthDate', 'image', 'userState', 'marks'];
+        const fieldWare = ['username', 'staffId','sex', 'staffName', 'phone', 'address', 'birthDate', 'image', 'userState', 'marks'];
         let result = await this.userModel.findOne({ staffId: data.staffId });
         if (result) {
             fieldWare.forEach(v => {
-                result[v] = data[v];
+                if (data[v]) {
+                    result[v] = data[v];
+                }
             })
         }
         await this.userModel.save(result);
