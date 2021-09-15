@@ -25,11 +25,11 @@ export default (appInfo: EggAppInfo) => {
 
   config.orm = {
     type: 'mysql',
-    host: '121.40.203.8',
+    host: 'localhost',
     port: 3306,
     username: 'root',
     password: '974813758aa',
-    database: 'chongshe',
+    database: 'userdb',
     synchronize: true,//自动创建表和列
     logging: false,
     entities: [User,ResourceRole,Resource,Role,UserRole],//实体都必须在连接选项中注册

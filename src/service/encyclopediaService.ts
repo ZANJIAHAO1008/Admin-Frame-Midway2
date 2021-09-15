@@ -12,7 +12,6 @@ export class EncyclopediaService {
 
     encyclopediaModel: Repository<EncyclopediaService>;
 
-
     async getEncyclopedia(data): Promise<Message> {
         //查询百科
         //需要展示的字段

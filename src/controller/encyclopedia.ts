@@ -2,11 +2,16 @@ import { Controller, Provide, Get, Query, ALL, Inject, Body, Post, Put, Del } fr
 import { Message } from '../interface/interface';
 import { EncyclopediaService } from "../service/encyclopediaService";
 import { EncyclopediaQuery, EncyclopediaAdd } from '../interface/encyclopedia';
+import { Context } from 'egg';
 @Provide()
 @Controller('/')
 export class EncyclopediaController {
+
     @Inject('EncyclopediaService')
     encyclopediaService: EncyclopediaService;
+
+    @Inject()
+    ctx: Context;
 
     @Get('/encyclopedia/query') //查询 
     async getEncyclopedia(@Query(ALL) data: EncyclopediaQuery): Promise<Message> {

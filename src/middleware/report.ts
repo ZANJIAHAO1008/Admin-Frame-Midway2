@@ -9,7 +9,6 @@ export class ReportMiddleware implements IWebMiddleware {
   userUtil: UserUtil;
   resolve() {
     return async (ctx: Context, next: IMidwayWebNext) => {
-
       if(ctx.url.split('/').includes('api')){
         //去除生产环境 接口自带api的问题(暂定,后期修改)
         let filterUrl = ctx.url.slice(4,ctx.url.length);
