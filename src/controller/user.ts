@@ -51,7 +51,7 @@ export class UserController {
         return result;
     }
 
-    @Validate(false)
+    @Validate()
     @Post('/user/modifyBaseInfo')  //修改基本信息
     async modifyBaseInfo(@Body(ALL) data: ChangeUserInfoDTO): Promise<Message> {
         const result = await this.userService.modifyBaseInfo(data);

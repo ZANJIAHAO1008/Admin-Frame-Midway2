@@ -63,10 +63,10 @@ export class RegisterDTO {  //注册
     }))
     checkPass: string;
 
-    @Rule(RuleType.string())
+    @Rule(RuleType.string().empty(''))
     sex: string;
 
-    @Rule(RuleType.string().max(12).min(1).error(errors => {
+    @Rule(RuleType.string().max(12).min(1).empty('').error(errors => {
         return new Error(checkDTO({
             isLength: true,
             value: errors[0].value,
@@ -151,11 +151,11 @@ export class ChangeUserInfoDTO { //修改用户信息
     username: string;
 
     //性别
-    @Rule(RuleType.string())
+    @Rule(RuleType.string().empty(''))
     sex: string;
 
     //姓名
-    @Rule(RuleType.string().max(12).min(1).error(errors => {
+    @Rule(RuleType.string().max(12).min(1).empty('').error(errors => {
         return new Error(checkDTO({
             isLength: true,
             value: errors[0].value,
@@ -167,7 +167,7 @@ export class ChangeUserInfoDTO { //修改用户信息
     staffName: number;
 
     //联系电话
-    @Rule(RuleType.string().max(12).min(8).error(errors => {
+    @Rule(RuleType.string().max(12).min(8).empty('').error(errors => {
         return new Error(checkDTO({
             isLength: true,
             value: errors[0].value,
@@ -178,24 +178,24 @@ export class ChangeUserInfoDTO { //修改用户信息
     }))
     phone: string;
 
-    // //地址
-    // @Rule(RuleType.string())
-    // address: string;
+    //地址
+    @Rule(RuleType.string().empty(''))
+    address: string;
 
-    // //出生日期
-    // @Rule(RuleType.string())
-    // birthDate: string;
+    //出生日期
+    @Rule(RuleType.string().empty(''))
+    birthDate: string;
 
-    // //照片
-    // @Rule(RuleType.string())
-    // image: string;
+    //照片
+    @Rule(RuleType.string().empty(''))
+    image: string;
 
-    // //用户状态
-    // @Rule(RuleType.string().max(1).min(0))
-    // userState: string;
+    //用户状态
+    @Rule(RuleType.string().empty(''))
+    userState: string;
 
-    // //备注
-    // @Rule(RuleType.string())
-    // marks: string;
+    //备注
+    @Rule(RuleType.string().empty(''))
+    marks: string;
 }
 

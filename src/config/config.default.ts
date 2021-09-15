@@ -28,17 +28,19 @@ export default (appInfo: EggAppInfo) => {
 
   config.orm = {
     type: 'mysql',
-    host: 'localhost',
+    // host: 'localhost',
+    // database: 'userdb',
+    host: "121.40.203.8",
+    database: 'chongshe',
     port: 3306,
     username: 'root',
     password: '974813758aa',
-    database: 'userdb',
     synchronize: true,//自动创建表和列
     logging: false,
-    entities: [User,ResourceRole,Resource,Role,UserRole],//实体都必须在连接选项中注册
+    entities: [User, ResourceRole, Resource, Role, UserRole],//实体都必须在连接选项中注册
   }
 
-  
+
 
   // config.security = {
   //   csrf: false,
