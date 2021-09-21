@@ -10,13 +10,13 @@ import { RoleService } from '../service/roleService';
 import { ResourceService } from '../service/resourceService'
 import { postMethod, getMethod } from '../util/methods';
 import { generateToken, uuid } from '../util/public'
-@Provide('UserService')
+@Provide()
 export class UserService {
     @InjectEntityModel(User)
     userModel: Repository<User>;
-    @Inject('RoleService') //注册角色服务用来查询角色
+    @Inject() //注册角色服务用来查询角色
     roleService: RoleService;//用来查询角色
-    @Inject('ResourceService') //注册角色服务用来查询角色
+    @Inject() //注册角色服务用来查询角色
     resourceService: ResourceService;//用来查询角色
 
     // 注册

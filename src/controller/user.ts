@@ -1,18 +1,22 @@
 import { Controller, Get, Inject, Post, Provide, Body, ALL, Query, Validate } from '@midwayjs/decorator';
 import { UserService } from '../service/userService'
-import { Message, UserQuery } from '../interface/interface';
-import { LoginDTO, RegisterDTO, DelUserDTO, ChangePassDTO, ChangeUserInfoDTO } from '../dto/user';
+import { Message } from '../interface/interface';
+import { LoginDTO, RegisterDTO, DelUserDTO, ChangePassDTO, ChangeUserInfoDTO, GetUserListDTO } from '../dto/user';
 import { Context } from 'egg';
 import { verifyToken } from '../util/public'
 @Provide()
 @Controller('/')
 export class UserController {
-    @Inject('UserService')
+    
+    @Inject()
     userService: UserService;
+
     @Inject()
     ctx: Context;
+
+    @Validate()
     @Get('/user/getAll') //查询全部
-    async getAll(@Query(ALL) data: UserQuery): Promise<Message> {
+    async getAll(@Query(ALL) data: GetUserListDTO): Promise<Message> {
         const result = await this.userService.queryUser(data);
         return result;
     }

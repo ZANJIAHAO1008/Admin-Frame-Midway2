@@ -199,3 +199,22 @@ export class ChangeUserInfoDTO { //修改用户信息
     marks: string;
 }
 
+
+export class GetUserListDTO { //查询用户列表
+    //姓名
+    @Rule(RuleType.string().empty(''))
+    staffName: string;
+
+    //ID
+    @Rule(RuleType.string().empty(''))
+    staffId: string;
+
+    //分页长度
+    @Rule(RuleType.string().empty(''))
+    pageSize: number;
+
+    //当前页
+    @Rule(RuleType.string().empty(''))
+    page: number;
+}
+
