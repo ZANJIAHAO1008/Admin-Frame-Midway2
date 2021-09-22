@@ -3,7 +3,7 @@ import { Provide } from '@midwayjs/decorator';
 import { format } from './public';
 const jwt = require('jsonwebtoken');
 const screenKey = 'zanjiahao'; //生成uuid作为jwt密匙  
-const uuidv3 = require('uuid/v3');
+const { v3: uuidv3 } = require('uuid');
 @Provide('UserUtil')
 export class UserUtil {
     async success(result: Object): Promise<Message> { //成功返回

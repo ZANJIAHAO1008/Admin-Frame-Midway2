@@ -3,7 +3,7 @@ import { Authorization, Message, CheckDTO } from '../interface/interface';
 const moment = require('moment');
 const jwt = require('jsonwebtoken')
 const screenKey = 'zanjiahao'; //生成uuid作为jwt密匙  
-const uuidv3 = require('uuid/v3');
+const { v3: uuidv3 } = require('uuid');
 //时间过滤
 export function format(data: any) {
     return moment(data).format('YYYY-MM-DD HH:mm:ss');
